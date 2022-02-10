@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
-use std::rc::Rc;
+use std::sync::Arc;
 use std::vec::Vec;
 
 use crate::phy::{self, sys, Device, DeviceCapabilities, Medium};
@@ -11,7 +11,7 @@ use crate::Result;
 /// A virtual TUN (IP) or TAP (Ethernet) interface.
 #[derive(Debug)]
 pub struct TunTapInterface {
-    lower: Rc<RefCell<sys::TunTapInterfaceDesc>>,
+    lower: Arc<RefCell<sys::TunTapInterfaceDesc>>,
     mtu: usize,
     medium: Medium,
 }
@@ -33,7 +33,7 @@ impl TunTapInterface {
         lower.attach_interface()?;
         let mtu = lower.interface_mtu()?;
         Ok(TunTapInterface {
-            lower: Rc::new(RefCell::new(lower)),
+            lower: Arc::new(RefCell::new(lower)),
             mtu,
             medium,
         })
@@ -92,7 +92,7 @@ impl phy::RxToken for RxToken {
 
 #[doc(hidden)]
 pub struct TxToken {
-    lower: Rc<RefCell<sys::TunTapInterfaceDesc>>,
+    lower: Arc<RefCell<sys::TunTapInterfaceDesc>>,
 }
 
 impl phy::TxToken for TxToken {
