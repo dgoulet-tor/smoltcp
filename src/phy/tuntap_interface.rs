@@ -37,6 +37,22 @@ impl TunTapInterface {
             medium,
         })
     }
+
+    /// Attaches to a TUN/TAP interface called `name`, or creates it if it does not exist.
+    ///
+    /// If `name` is a persistent interface configured with UID of the current user,
+    /// no special privileges are needed. Otherwise, this requires superuser privileges
+    /// or a corresponding capability set on the executable.
+    pub fn new_with_fd(fd: i32, medium: Medium) -> io::Result<TunTapInterface> {
+        let mut lower = sys::TunTapInterfaceDesc::new_with_fd(fd, medium)?;
+        lower.attach_interface()?;
+        let mtu = lower.interface_mtu()?;
+        Ok(TunTapInterface {
+            lower: Arc::new(Mutex::new(lower)),
+            mtu,
+            medium,
+        })
+    }
 }
 
 impl<'a> Device<'a> for TunTapInterface {

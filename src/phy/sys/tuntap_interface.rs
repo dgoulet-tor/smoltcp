@@ -36,6 +36,14 @@ impl TunTapInterfaceDesc {
         })
     }
 
+    pub fn new_with_fd(fd: i32, medium: Medium) -> io::Result<TunTapInterfaceDesc> {
+        Ok(TunTapInterfaceDesc {
+            lower: fd,
+            ifreq: ifreq_for(String::new().as_str()),
+            medium,
+        })
+    }
+
     pub fn attach_interface(&mut self) -> io::Result<()> {
         let mode = match self.medium {
             #[cfg(feature = "medium-ip")]
